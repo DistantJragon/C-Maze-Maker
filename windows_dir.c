@@ -8,11 +8,12 @@
  * This function ensures that the directory exists.
  */
 
-void ensure_dir(const char* path) {
+int ensure_dir(const char* path) {
     struct stat st;
     if (stat(path, &st) == -1) {
-        mkdir(path);
+        return mkdir(path);
     }
+    return 0;
 } /* ensure_dir() */
 
 /*

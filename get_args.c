@@ -6,50 +6,93 @@
 #include <string.h>
 #include <time.h>
 
-maze_input_t get_maze_parameters_from_user() {
-    maze_input_t input;
-    input.output = malloc(100);
-    assert(input.output);
+maze_input_t* get_maze_parameters_from_user() {
+    maze_input_t* input = malloc(sizeof(maze_input_t));
+    input->output = malloc(100);
+    assert(input->output);
     printf("Enter the path to the directory where the maze will be saved: ");
-    scanf("%[^\n]", input.output);
+    scanf("%99[^\n]", input->output);
     printf("Enter the width of the maze: ");
-    scanf("%d", &input.width);
+    scanf("%d", &input->width);
     printf("Enter the height of the maze: ");
-    scanf("%d", &input.height);
+    scanf("%d", &input->height);
     printf("Enter the width of the walls: ");
-    scanf("%d", &input.wall_width);
+    scanf("%d", &input->wall_width);
     printf("Enter the width of the corridors: ");
-    scanf("%d", &input.corridor_width);
+    scanf("%d", &input->corridor_width);
     long temp;
     printf("Enter the seed for the maze: ");
     scanf("%ld", &temp);
     if (temp < 0) {
-        input.seed = time(NULL);
+        input->seed = time(NULL);
     } else {
-        input.seed = temp;
+        input->seed = temp;
     }
     printf("Enter the output type (0 for image, 1 for video): ");
     scanf("%ld", &temp);
-    input.video = temp;
+    input->video = temp ? true : false;
+    printf("Enter the chance to place a shortcut (0-1): ");
+    scanf("%lf", &input->shortcut_chance);
     return input;
 } /* get_maze_parameters_from_user() */
 
-maze_input_t get_maze_parameters_from_args(int argc, char *argv[]) {
-    assert(argc == 8);
-    maze_input_t input;
-    input.output = malloc(strlen(argv[1]) + 1);
-    assert(input.output);
-    strcpy(input.output, argv[1]);
-    input.width = atoi(argv[2]);
-    input.height = atoi(argv[3]);
-    input.wall_width = atoi(argv[4]);
-    input.corridor_width = atoi(argv[5]);
+maze_input_t* get_maze_parameters_from_args(int argc, char *argv[]) {
+    assert(argc == 10);
+    maze_input_t* input = malloc(sizeof(maze_input_t));
+    input->output = malloc(strlen(argv[1]) + 1);
+    assert(input->output);
+    strcpy(input->output, argv[1]);
+    input->width = atoi(argv[2]);
+    input->height = atoi(argv[3]);
+    input->wall_width = atoi(argv[4]);
+    input->corridor_width = atoi(argv[5]);
     long temp = atol(argv[6]);
     if (temp < 0) {
-        input.seed = time(NULL);
+        input->seed = time(NULL);
     } else {
-        input.seed = temp;
+        input->seed = temp;
     }
-    input.video = atoi(argv[7]);
+    input->video = atoi(argv[7]);
+    input->shortcut_chance = atof(argv[8]);
+    temp = atol(argv[9]);
+    assert(temp >= 0 && temp <= 3);
+    input->mode = temp;
     return input;
 } /* get_maze_parameters_from_args() */
+
+maze_input_t* get_maze_parameters_from_file(FILE *fp) {
+    maze_input_t* input = malloc(sizeof(maze_input_t));
+    assert(input);
+    fscanf(fp, "Path=");
+
+    /* Store the rest of the line in the output path. Need to count the number of characters until the end of the line
+     * so we can allocate the correct amount of memory. */
+
+    printf("here0");
+    
+    int count = 0;
+    while ((fgetc(fp)) != '\n') {
+        count++;
+    }
+    input->output = malloc(count + 1);
+    assert(input->output);
+    fseek(fp, -count - 2, SEEK_CUR);
+    fgets(input->output, count + 1, fp);
+
+    long temp;
+    if (fscanf(fp, "\nWidth=%d\nHeight=%d\nWall width=%d\nCorridor width=%d\nSeed=%ld\n",
+               &input->width, &input->height, &input->wall_width, &input->corridor_width, &temp) != 5) {
+        return NULL;
+    }
+    printf("here1");
+    if (temp < 0) {
+        input->seed = time(NULL);
+    } else {
+        input->seed = temp;
+    }
+    if (fscanf(fp, "Video=%ld\nShortcut chance=%lf", &temp, &input->shortcut_chance) != 2) {
+        return NULL;
+    }
+    input->video = temp ? true : false;
+    return input;
+} /* get_maze_parameters_from_file() */
