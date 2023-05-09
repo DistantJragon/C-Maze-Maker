@@ -4,7 +4,7 @@
 #include <stdbool.h>
 #include <stdio.h>
 
-#define OPP_DIR(dir) (~dir & 0x03)
+#define OPP_DIR(dir) (~(dir) & 0x03)
 
 enum directions {
     UP,
@@ -31,6 +31,11 @@ typedef struct maze_input_s {
     char* output;
     bool video;
 } maze_input_t;
+
+typedef struct maze_cell_s {
+    bool visited;
+    bool walls[4];
+} maze_cell_t;
 
 int           ensure_dir(const char*);
 maze_input_t* get_maze_parameters_from_args(int, char**);

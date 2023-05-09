@@ -16,7 +16,7 @@ int main(int argc, char* argv[]) {
         }
         input = get_maze_parameters_from_file(fp);
         fclose(fp);
-    } else if (argc == 10) {
+    } else if (argc == 11) {
         input = get_maze_parameters_from_args(argc, argv);
     } else {
         input = get_maze_parameters_from_user();
@@ -32,7 +32,10 @@ int main(int argc, char* argv[]) {
     }
     if (input->video) {
         input->output = video_dir_name(input->output, input->seed);
-        ensure_dir(input->output);
+        if (ensure_dir(input->output) != 0) {
+            printf("Could not create directory %s\n", input->output);
+            return 1;
+        }
     }
     printf("Creating grid with these parameters:\n\tPath: %s\nWidth: %d\n"
            "Height: %d\nWW: %d\nCW: %d\nSeed: %d\nVideo: %s\nSC%%: %lf\n",

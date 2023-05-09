@@ -28,6 +28,9 @@ maze_input_t* get_maze_parameters_from_user() {
     } else {
         input->seed = temp;
     }
+    printf("Enter the build mode (0 for first, 1 for random queue, 2 for random, 3 for last): ");
+    scanf("%ld", &temp);
+    input->build_mode = temp;
     printf("Enter the output type (0 for image, 1 for video): ");
     scanf("%ld", &temp);
     input->video = temp ? true : false;
@@ -37,7 +40,7 @@ maze_input_t* get_maze_parameters_from_user() {
 } /* get_maze_parameters_from_user() */
 
 maze_input_t* get_maze_parameters_from_args(int argc, char *argv[]) {
-    assert(argc == 10);
+    assert(argc == 11);
     maze_input_t* input = malloc(sizeof(maze_input_t));
     input->output = malloc(strlen(argv[1]) + 1);
     assert(input->output);
@@ -52,6 +55,7 @@ maze_input_t* get_maze_parameters_from_args(int argc, char *argv[]) {
     } else {
         input->seed = temp;
     }
+    input->mode = atoi(argv[7]);
     input->video = atoi(argv[7]);
     input->shortcut_chance = atof(argv[8]);
     temp = atol(argv[9]);
@@ -90,6 +94,10 @@ maze_input_t* get_maze_parameters_from_file(FILE *fp) {
     } else {
         input->seed = temp;
     }
+    if ((fscanf(fp, "Build Mode=%ld\n", &temp) != 1) || (temp < 0) || (temp > 3)) {
+        return NULL;
+    }
+    input->mode = temp;
     if (fscanf(fp, "Video=%ld\nShortcut chance=%lf", &temp, &input->shortcut_chance) != 2) {
         return NULL;
     }
