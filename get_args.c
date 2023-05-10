@@ -1,4 +1,4 @@
-#include "maze_maker.h"
+#include "get_args.h"
 
 #include <assert.h>
 #include <stdio.h>
@@ -6,8 +6,12 @@
 #include <string.h>
 #include <time.h>
 
-maze_input_t* get_maze_parameters_from_user() {
-    maze_input_t* input = malloc(sizeof(maze_input_t));
+/*
+ * This function gets the arguments from the user and returns them in a struct.
+ */
+
+maze_t* get_maze_parameters_from_user() {
+    maze_t* input = malloc(sizeof(maze_t));
     input->output = malloc(100);
     assert(input->output);
     printf("Enter the path to the directory where the maze will be saved: ");
@@ -30,18 +34,23 @@ maze_input_t* get_maze_parameters_from_user() {
     }
     printf("Enter the build mode (0 for first, 1 for random queue, 2 for random, 3 for last): ");
     scanf("%ld", &temp);
-    input->build_mode = temp;
+    input->mode = temp;
     printf("Enter the output type (0 for image, 1 for video): ");
     scanf("%ld", &temp);
     input->video = temp ? true : false;
     printf("Enter the chance to place a shortcut (0-1): ");
     scanf("%lf", &input->shortcut_chance);
+    input->maze = NULL;
     return input;
 } /* get_maze_parameters_from_user() */
 
-maze_input_t* get_maze_parameters_from_args(int argc, char *argv[]) {
+/*
+ * Get the maze parameters from the command line arguments.
+ */
+
+maze_t* get_maze_parameters_from_args(int argc, char *argv[]) {
     assert(argc == 11);
-    maze_input_t* input = malloc(sizeof(maze_input_t));
+    maze_t* input = malloc(sizeof(maze_t));
     input->output = malloc(strlen(argv[1]) + 1);
     assert(input->output);
     strcpy(input->output, argv[1]);
@@ -61,19 +70,22 @@ maze_input_t* get_maze_parameters_from_args(int argc, char *argv[]) {
     temp = atol(argv[9]);
     assert(temp >= 0 && temp <= 3);
     input->mode = temp;
+    input->maze = NULL;
     return input;
 } /* get_maze_parameters_from_args() */
 
-maze_input_t* get_maze_parameters_from_file(FILE *fp) {
-    maze_input_t* input = malloc(sizeof(maze_input_t));
+/*
+ * Get the maze parameters from the input file.
+ */
+
+maze_t* get_maze_parameters_from_file(FILE *fp) {
+    maze_t* input = malloc(sizeof(maze_t));
     assert(input);
     fscanf(fp, "Path=");
 
     /* Store the rest of the line in the output path. Need to count the number of characters until the end of the line
      * so we can allocate the correct amount of memory. */
 
-    printf("here0");
-    
     int count = 0;
     while ((fgetc(fp)) != '\n') {
         count++;
@@ -88,7 +100,6 @@ maze_input_t* get_maze_parameters_from_file(FILE *fp) {
                &input->width, &input->height, &input->wall_width, &input->corridor_width, &temp) != 5) {
         return NULL;
     }
-    printf("here1");
     if (temp < 0) {
         input->seed = time(NULL);
     } else {
@@ -102,5 +113,6 @@ maze_input_t* get_maze_parameters_from_file(FILE *fp) {
         return NULL;
     }
     input->video = temp ? true : false;
+    input->maze = NULL;
     return input;
 } /* get_maze_parameters_from_file() */

@@ -1,6 +1,8 @@
 #ifndef __maze_maker_h__
 #define __maze_maker_h__
 
+#include "imager.h"
+
 #include <stdbool.h>
 #include <stdio.h>
 
@@ -20,7 +22,12 @@ enum build_mode {
     LAST      /* based  */
 };
 
-typedef struct maze_input_s {
+typedef struct maze_cell_s {
+    bool walls[4];
+    bool visited;
+} maze_cell_t;
+
+typedef struct maze_s {
     double shortcut_chance;
     int width;
     int height;
@@ -30,19 +37,18 @@ typedef struct maze_input_s {
     enum build_mode mode;
     char* output;
     bool video;
-} maze_input_t;
+    maze_cell_t* maze;
+} maze_t;
 
-typedef struct maze_cell_s {
-    bool visited;
-    bool walls[4];
-} maze_cell_t;
-
-int           ensure_dir(const char*);
-maze_input_t* get_maze_parameters_from_args(int, char**);
-maze_input_t* get_maze_parameters_from_file(FILE*);
-maze_input_t* get_maze_parameters_from_user();
-int           main(int, char**);
-char*         video_dir_name(const char*, int);
-
+void build_maze(maze_t*, image_t*);
+void build_border(maze_t*, image_t*);
+void destroy_maze(maze_t*);
+void draw_cell(image_t*, maze_t*, int);
+void draw_maze(image_t*, maze_t*);
+int get_cell_in_dir(int, enum directions, int, int);
+int get_cell_in_random_dir(int, int, int);
+int get_unvisited_cell_in_random_dir(maze_cell_t*, int, int, int);
+int main(int, char**);
+int start_build(maze_t*);
 
 #endif
