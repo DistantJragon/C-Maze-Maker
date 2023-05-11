@@ -1,0 +1,9 @@
+Path=\Maze Images
+Width=25
+Height=10
+Wall width=1
+Corridor width=2
+Seed=-1
+Build Mode=3
+Video=1
+Shortcut chance=0.01
