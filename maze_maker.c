@@ -26,7 +26,7 @@ int start_build(maze_t* maze) {
     build_border(maze, image);
     build_maze(maze, image);
     draw_maze(image, maze);
-    char* filename = output_file_name(maze->output, maze->seed, ".png");
+    char* filename = output_file_name(maze->output, maze->seed, "F.png");
     image_save(image, filename);
     free(filename);
     image_destroy(image);
@@ -40,6 +40,7 @@ void build_maze(maze_t* maze, image_t* image) {
     queue_t* q = NULL;
     void* queue = NULL;
     uint queue_index = 0;
+    uint iteration = 0;
     bool (*is_empty)(void*) = NULL;
     void* check_empty = NULL;
     if (maze->mode == RANDOM) {
@@ -64,6 +65,8 @@ void build_maze(maze_t* maze, image_t* image) {
         switch (maze->mode) {
             case RANDOM_Q:
                 queue_index = rand() % q->size;
+                cell_index = *((uint*) queue_get(q, queue_index));
+                break;
             case LAST:
                 queue_index = q->size - 1;
             case FIRST:
@@ -75,12 +78,13 @@ void build_maze(maze_t* maze, image_t* image) {
             default:
                 return;
         }
-        printf("cell_index: %d\n", cell_index);
         maze->cells[cell_index].visited = true;
         uint r_cell;
         for (enum directions dir = UP; dir <= DOWN; dir++) {
             r_cell = get_cell_in_dir(maze, cell_index, dir);
-            if ((r_cell != -1) && (maze->cells[r_cell].visited) && !(maze->cells[r_cell].walls[dir])) {
+            if ((r_cell != -1) &&
+                (maze->cells[r_cell].visited) &&
+                (maze->cells[cell_index].walls[dir] != 1)) {
                 maze->cells[cell_index].walls[dir] = 2;
                 maze->cells[r_cell].walls[OPP_DIR(dir)] = 2;
             }
@@ -95,10 +99,17 @@ void build_maze(maze_t* maze, image_t* image) {
             queue_push(queue, ptr);
             maze->cells[cell_index].walls[r_dir] = 1;
             maze->cells[r_cell].walls[OPP_DIR(r_dir)] = 1;
+            maze->cells[r_cell].visited = true;
         } else if (maze->mode != RANDOM) {
             free(queue_pop(q, queue_index));
         } else if (r_dir == -1) {
             queue_index++;
+        }
+        if (maze->video) {
+            draw_maze(image, maze);
+            char* filename = output_file_name(maze->output, iteration++, ".png");
+            image_save(image, filename);
+            free(filename);
         }
     }
 } /* build_maze() */
@@ -184,10 +195,10 @@ void draw_cell(image_t* image, maze_t* maze, uint cell) {
     uint x = CELL_X(cell, maze->width) * clw;
     uint y = CELL_Y(cell, maze->width) * clw;
     byte* walls = maze_cell->walls;
-    uint up = walls[UP] == 0 ? 0x9F : (walls[UP] == 1 ? 0x00 : 0xFF);
-    uint down = walls[DOWN] == 0 ? 0x9F : (walls[DOWN] == 1 ? 0x00 : 0xFF);
-    uint left = walls[LEFT] == 0 ? 0x9F : (walls[LEFT] == 1 ? 0x00 : 0xFF);
-    uint right = walls[RIGHT] == 0 ? 0x9F : (walls[RIGHT] == 1 ? 0x00 : 0xFF);
+    uint up = walls[UP] == 0 ? 0x9F : (walls[UP] == 2 ? 0x00 : 0xFF);
+    uint down = walls[DOWN] == 0 ? 0x9F : (walls[DOWN] == 2 ? 0x00 : 0xFF);
+    uint left = walls[LEFT] == 0 ? 0x9F : (walls[LEFT] == 2 ? 0x00 : 0xFF);
+    uint right = walls[RIGHT] == 0 ? 0x9F : (walls[RIGHT] == 2 ? 0x00 : 0xFF);
     image_rect_t rects[9] = {
         {x, y, ww, ww, 0}, {x + ww, y, cw, ww, up}, {x + clw, y, ww, ww, 0},
         {x, y + ww, ww, cw, left}, {x + ww, y + ww, cw, cw, 0xFF}, {x + clw, y + ww, ww, cw, right},
@@ -204,8 +215,8 @@ void draw_cell_up_left(image_t* image, maze_t* maze, uint cell) {
     uint x = CELL_X(cell, maze->width) * clw;
     uint y = CELL_Y(cell, maze->width) * clw;
     byte* walls = maze_cell->walls;
-    uint up = walls[UP] == 0 ? 0x9F : (walls[UP] == 1 ? 0x00 : 0xFF);
-    uint left = walls[LEFT] == 0 ? 0x9F : (walls[LEFT] == 1 ? 0x00 : 0xFF);
+    uint up = walls[UP] == 0 ? 0x9F : (walls[UP] == 2 ? 0x00 : 0xFF);
+    uint left = walls[LEFT] == 0 ? 0x9F : (walls[LEFT] == 2 ? 0x00 : 0xFF);
     image_rect_t rects[4] = {
         {x, y, ww, ww, 0}, {x + ww, y, cw, ww, up},
         {x, y + ww, ww, cw, left}, {x + ww, y + ww, cw, cw, 0xFF}
