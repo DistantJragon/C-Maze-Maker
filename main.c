@@ -50,6 +50,7 @@ int main(int argc, char* argv[]) {
            input->output, input->width, input->height, input->wall_width, input->corridor_width, input->seed,
            input->video ? "true" : "false", input->shortcut_chance);
     start_build(input);
-    free(input);
+    destroy_maze(input);
+    input = NULL;
     return 0;
 } /* main() */

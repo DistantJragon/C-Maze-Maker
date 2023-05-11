@@ -34,7 +34,7 @@ char* string_safe_concat(const char* str1, const char* str2) {
  * This function constructs the name of the video directory.
  */
 
-char* video_dir_name(const char* str, int i) {
+char* video_dir_name(const char* str, uint i) {
     // Determine the length of the resulting string
     size_t str_len = strlen(str);
     size_t int_len = snprintf(NULL, 0, "%d", i);
@@ -54,18 +54,19 @@ char* video_dir_name(const char* str, int i) {
  * This function constructs the name of the video file.
  */
 
-char* video_file_name(const char* str, int i) {
+char* output_file_name(const char* str, uint i, const char* ext) {
     // Determine the length of the resulting string
     size_t str_len = strlen(str);
     size_t int_len = snprintf(NULL, 0, "%d", i);
-    size_t total_len = str_len + int_len + 6;  // Add 6 for the \, .mp4, and NUL
+    size_t ext_len = strlen(ext);
+    size_t total_len = str_len + int_len + ext_len + 2;  // Add 2 for the \ and NUL
 
     // Allocate memory for the resulting string
     char* result = (char*) malloc(total_len * sizeof(char));
     assert(result);
 
     // Copy the string and integer into the resulting string
-    snprintf(result, total_len, "%s\\%d.mp4", str, i);
+    snprintf(result, total_len, "%s\\%d%s", str, i, ext);
 
     return result;
 } /* concat_str_int() */

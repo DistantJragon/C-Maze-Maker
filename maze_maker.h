@@ -1,7 +1,9 @@
 #ifndef __maze_maker_h__
 #define __maze_maker_h__
 
+#include "common_typedefs.h"
 #include "imager.h"
+#include "queue.h"
 
 #include <stdbool.h>
 #include <stdio.h>
@@ -23,32 +25,40 @@ enum build_mode {
 };
 
 typedef struct maze_cell_s {
-    bool walls[4];
+    byte walls[4];
     bool visited;
 } maze_cell_t;
 
 typedef struct maze_s {
     double shortcut_chance;
-    int width;
-    int height;
-    int wall_width;
-    int corridor_width;
-    unsigned int seed;
+    uint width;
+    uint height;
+    uint wall_width;
+    uint corridor_width;
+    uint seed;
     enum build_mode mode;
     char* output;
     bool video;
-    maze_cell_t* maze;
+    maze_cell_t* cells;
 } maze_t;
+
+typedef struct array_check_s {
+    uint size;
+    uint* index;
+} array_check_t;
 
 void build_maze(maze_t*, image_t*);
 void build_border(maze_t*, image_t*);
 void destroy_maze(maze_t*);
-void draw_cell(image_t*, maze_t*, int);
+void draw_cell(image_t*, maze_t*, uint);
 void draw_maze(image_t*, maze_t*);
-int get_cell_in_dir(int, enum directions, int, int);
-int get_cell_in_random_dir(int, int, int);
-int get_unvisited_cell_in_random_dir(maze_cell_t*, int, int, int);
+uint get_cell_in_dir(maze_t*, uint, enum directions);
+enum directions random_dir_with_cell(maze_t*, uint, bool);
+bool is_empty_array(void*);
+bool is_empty_queue(void*);
 int main(int, char**);
+int remove_cell_from_queue(queue_t*, uint);
+uint* shuffled_array(uint);
 int start_build(maze_t*);
 
 #endif

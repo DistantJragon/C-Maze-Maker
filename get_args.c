@@ -40,7 +40,7 @@ maze_t* get_maze_parameters_from_user() {
     input->video = temp ? true : false;
     printf("Enter the chance to place a shortcut (0-1): ");
     scanf("%lf", &input->shortcut_chance);
-    input->maze = NULL;
+    input->cells = NULL;
     return input;
 } /* get_maze_parameters_from_user() */
 
@@ -70,7 +70,7 @@ maze_t* get_maze_parameters_from_args(int argc, char *argv[]) {
     temp = atol(argv[9]);
     assert(temp >= 0 && temp <= 3);
     input->mode = temp;
-    input->maze = NULL;
+    input->cells = NULL;
     return input;
 } /* get_maze_parameters_from_args() */
 
@@ -113,6 +113,6 @@ maze_t* get_maze_parameters_from_file(FILE *fp) {
         return NULL;
     }
     input->video = temp ? true : false;
-    input->maze = NULL;
+    input->cells = NULL;
     return input;
 } /* get_maze_parameters_from_file() */

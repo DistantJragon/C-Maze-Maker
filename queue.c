@@ -14,7 +14,7 @@ queue_t* queue_init() {
     queue->tail = NULL;
     queue->size = 0;
     return queue;
-} /* queue_init() */
+}
 
 /*
  * This function adds a new node to the queue.
@@ -41,10 +41,13 @@ void queue_push(queue_t* queue, void* data) {
  * This function returns the data of the nth node in the queue.
  */
 
-void* queue_get(queue_t* queue, int n) {
+void* queue_get(queue_t* queue, uint n) {
     assert(queue);
     assert(n >= 0);
     assert(n < queue->size);
+    if (n == queue->size - 1) {
+        return queue->tail->data;
+    }
     queue_node_t* node = queue->head;
     for (int i = 0; i < n; i++) {
         node = node->next;
@@ -56,7 +59,7 @@ void* queue_get(queue_t* queue, int n) {
  * This function removes the nth node from the queue and returns its data.
  */
 
-void* queue_pop(queue_t* queue, int n) {
+void* queue_pop(queue_t* queue, uint n) {
     assert(queue);
     assert(n >= 0);
     assert(n < queue->size);

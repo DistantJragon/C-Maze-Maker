@@ -1,26 +1,28 @@
 #ifndef __imager_h__
 #define __imager_h__
 
+#include "common_typedefs.h"
+
 typedef struct image_s {
-    int width;
-    int height;
-    int channels;
-    unsigned char* data;
+    uint width;
+    uint height;
+    uint channels;
+    byte* data;
 } image_t;
 
 typedef struct image_rect_s {
-    int x;
-    int y;
-    int w;
-    int h;
-    unsigned int value;
+    uint x;
+    uint y;
+    uint w;
+    uint h;
+    uint value;
 } image_rect_t;
 
-image_t* image_init(int width, int height, int channels);
+image_t* image_init(uint width, uint height, uint channels);
 void     image_destroy(image_t* image);
 void     image_save(image_t* image, const char* filename);
-void     image_set_range(image_t* image, int x, int y, int w, unsigned char value);
-void     image_set_rect(image_t* image, int x, int y, int w, int h, unsigned char value);
-void     image_set_rects(image_t* image, image_rect_t* rects, int num_rects);
+void     image_set_range(image_t* image, uint x, uint y, uint w, uint value);
+void     image_set_rect(image_t* image, uint x, uint y, uint w, uint h, uint value);
+void     image_set_rects(image_t* image, image_rect_t* rects, uint num_rects);
 
 #endif
